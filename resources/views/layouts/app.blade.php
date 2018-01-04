@@ -58,7 +58,16 @@
             </div>
         </nav>
 
+        @if(Auth::check())
+            @include('layouts.file-form')
+        @endif
+
         @yield('content')
+
+        <div v-show="notification" id="flash-message" class="notification is-success">
+            <button class="delete" @click="notification=false"></button>
+            File successefully uploaded
+        </div>
     </div>
 
     <!-- Scripts -->

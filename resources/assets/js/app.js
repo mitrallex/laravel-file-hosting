@@ -6,6 +6,15 @@
  */
 
 window.Vue = require('vue');
+window.axios = require('axios');
+
+let token = document.head.querySelector('meta[name="csrf-token"]');
+
+if (token) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+} else {
+    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -13,69 +22,47 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('tabs', {
-    template: `
-        <div>
-            <div class="tabs is-centered is-large">
-                <ul>
-                    <li v-for="tab in tabs" :class="{'is-active': tab.isActive}">
-                        <a :href="tab.href" @click="selectTab(tab)">
-                            <span class="icon is-small"><i class="fa fa-image"></i></span>
-                            <span>{{ tab.name }}</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="tabs-details">
-                <slot></slot>
-            </div>
-        </div>
-    `,
+// Vue.component('tabs', require('./components/Tabs'));
+// Vue.component('tab', require('./components/Tab'));
 
-    data() {
-        return {tabs: []};
-    },
+const app = new Vue({
+    el: '#app',
 
-    created() {
-        this.tabs = this.$children;
+    data: {
+        files: {},
+        activeTab: 'image',
+
+        data: new FormData(),
+        attachments: [],
+
+        notification: false
     },
 
     methods: {
-        selectTab(selectedTab) {
-            this.tabs.forEach(tab => {
-                tab.isActive = (tab.name == selectedTab.name);
+        isActive(tabItem) {
+            return this.activeTab === tabItem;
+        },
+
+        setActive(tabItem) {
+            this.activeTab = tabItem;
+        },
+
+        fetchFile(type) {
+            axios.get('/practice/public/files/' + type + '/').then(result => {
+                this.files = result.data;
+            }).catch(error => {
+                console.log(error);
             });
-        }
-    }
-});
+        },
 
-Vue.component('tab', {
-    template: `
-        <div v-show="isActive"><slot></slot></div>
-    `,
-
-    props: {
-        name: {require: true},
-        selected: {default: false}
-    },
-
-    data() {
-        return {
-            isActive: false
-        }
-    },
-
-    computed: {
-        href() {
-            return '#' + this.name.toLowerCase().replace('/ /g', '-');
+        getFiles(type) {
+            this.fetchFile(type);
+            this.setActive(type);
         }
     },
 
     mounted() {
-        this.isActive = this.selected;
+        this.fetchFile('image');
     }
-});
 
-const app = new Vue({
-    el: '#app'
 });

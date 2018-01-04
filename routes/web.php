@@ -11,8 +11,9 @@
 |
 */
 
-Route::get('/', function () {
-    return view('main');
-})->middleware('auth');
+Route::get('/', 'MainController@index')->name('home')->middleware('auth');
+Route::get('/files/{type}/{id?}', 'FileController@fetchFile');
+
+Route::post('files/add', 'FileController@addFile')->name('file-add');
 
 Auth::routes();

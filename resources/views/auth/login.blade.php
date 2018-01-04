@@ -11,7 +11,7 @@
                     {{ csrf_field() }}
                     <div class="field">
                         <p class="control has-icons-left has-icons-right">
-                            <input class="input {{ $errors->has('email') ? ' is-danger' : '' }}" type="email" name="email" placeholder="Email">
+                            <input class="input {{ $errors->has('email') ? ' is-danger' : '' }}" type="email" name="email" placeholder="Email" required>
                             <span class="icon is-small is-left">
                                 <i class="fa fa-envelope"></i>
                             </span>
@@ -24,7 +24,7 @@
                     </div>
                     <div class="field">
                         <p class="control has-icons-left">
-                            <input class="input {{ $errors->has('password') ? ' is-danger' : '' }}" type="password" name="password" placeholder="Password">
+                            <input class="input {{ $errors->has('password') ? ' is-danger' : '' }}" type="password" name="password" placeholder="Password" required>
                             <span class="icon is-small is-left">
                                 <i class="fa fa-lock"></i>
                             </span>

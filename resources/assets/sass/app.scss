@@ -5,7 +5,8 @@ html, body {
     height: 100%;
 }
 
-body {
+body,
+#app {
     background-color: #f5f5f5;
 }
 
@@ -13,6 +14,26 @@ nav {
     margin-bottom: 20px;
 }
 
+nav .navbar-dropdown .navbar-item:hover {
+    background-color: #209cee;
+    color: #fff;
+}
+
 a {
     outline: none !important;
+}
+
+#app {
+    padding-bottom: 40px;
+}
+
+#new-file-form .file {
+    margin-right: 10px;
+}
+
+#flash-message {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
 }
