@@ -1,16 +1,16 @@
 <div class="container is-fluid box">
     <div class="new-file">
-        <form id="new-file-form" action="{{ route('file-add') }}" method="post" @click="notification=true">
+        <form id="new-file-form" action="#" method="#" @submit.prevent="submitForm">
             <div class="field is-grouped">
 
                 {{ csrf_field() }}
 
                 <p class="control is-expanded">
-                    <input class="input" type="text" name="name" placeholder="File name">
+                    <input class="input" type="text" name="name" placeholder="File name" v-model="fileName">
                 </p>
                 <div class="file is-info has-name">
                     <label class="file-label">
-                        <input class="file-input" type="file" name="resume">
+                        <input class="file-input" type="file" ref="file" name="resume" @change="uploadFile()">
                         <span class="file-cta">
                             <span class="file-icon">
                                 <i class="fa fa-upload"></i>
@@ -25,7 +25,7 @@
                     </label>
                 </div>
                 <p class="control">
-                    <button class="button is-primary">
+                    <button type="submit" class="button is-primary">
                         Add new file
                     </button>
                 </p>

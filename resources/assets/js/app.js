@@ -32,8 +32,9 @@ const app = new Vue({
         files: {},
         activeTab: 'image',
 
-        data: new FormData(),
-        attachments: [],
+        formData: {},
+        fileName: '',
+        attachment: '',
 
         notification: false
     },
@@ -58,6 +59,33 @@ const app = new Vue({
         getFiles(type) {
             this.fetchFile(type);
             this.setActive(type);
+        },
+
+        submitForm() {
+            this.formData = new FormData();
+            this.formData.append('name', this.fileName);
+            this.formData.append('file', this.attachment);
+
+            axios.post('/practice/public/files/add',
+                    this.formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+            }).then(response => {
+                this.notification = true;
+            }).catch(error => {
+                console.log(error);
+            });
+        },
+
+        uploadFile() {
+            this.attachment = this.$refs.file.files[0];
+        },
+
+        resetForm() {
+            this.formData = {};
+            this.attachment = '';
         }
     },
 
