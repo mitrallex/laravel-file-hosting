@@ -7,6 +7,9 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        window.Laravel = { csrfToken: '{{ csrf_token() }}' }
+    </script>
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
@@ -59,15 +62,11 @@
         </nav>
 
         @if(Auth::check())
+            @include('layouts.notification')
             @include('layouts.file-form')
         @endif
 
         @yield('content')
-
-        <div v-show="notification" id="flash-message" class="notification is-success">
-            <button class="delete" @click="notification=false"></button>
-            File successefully uploaded
-        </div>
     </div>
 
     <!-- Scripts -->

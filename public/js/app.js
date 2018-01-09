@@ -995,9 +995,6 @@ if (token) {
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-// Vue.component('tabs', require('./components/Tabs'));
-// Vue.component('tab', require('./components/Tab'));
-
 var app = new Vue({
     el: '#app',
 
@@ -1009,7 +1006,8 @@ var app = new Vue({
         fileName: '',
         attachment: '',
 
-        notification: false
+        notification: false,
+        message: ''
     },
 
     methods: {
@@ -1022,7 +1020,7 @@ var app = new Vue({
         fetchFile: function fetchFile(type) {
             var _this = this;
 
-            axios.get('/practice/public/files/' + type + '/').then(function (result) {
+            axios.get('/public/files/' + type + '/').then(function (result) {
                 _this.files = result.data;
             }).catch(function (error) {
                 console.log(error);
@@ -1039,21 +1037,42 @@ var app = new Vue({
             this.formData.append('name', this.fileName);
             this.formData.append('file', this.attachment);
 
-            axios.post('/practice/public/files/add', this.formData, {
+            axios.post('/public/files/add', this.formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
-                }
-            }).then(function (response) {
-                _this2.notification = true;
+                } }).then(function (response) {
+                _this2.showNotification('File successfully upload!');
+                _this2.resetForm();
+                _this2.fetchFile(_this2.activeTab);
             }).catch(function (error) {
                 console.log(error);
             });
         },
-        uploadFile: function uploadFile() {
+        addFile: function addFile() {
             this.attachment = this.$refs.file.files[0];
+        },
+        deleteFile: function deleteFile(id) {
+            var _this3 = this;
+
+            // console.log(window.axios.defaults.headers);
+            axios.post('/public/files/delete/' + id).then(function (response) {
+                _this3.showNotification('File successfully deleted!');
+                _this3.fetchFile(_this3.activeTab);
+            }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        showNotification: function showNotification(text) {
+            var application = this;
+            application.message = text;
+            application.notification = true;
+            setTimeout(function () {
+                application.notification = false;
+            }, 30000);
         },
         resetForm: function resetForm() {
             this.formData = {};
+            this.fileName = '';
             this.attachment = '';
         }
     },

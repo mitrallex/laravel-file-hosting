@@ -10687,13 +10687,37 @@ a {
   padding-bottom: 40px;
 }
 
+#message {
+  margin-bottom: 20px;
+}
+
+#message .delete {
+  margin: 5px 5px 0 0;
+}
+
 #new-file-form .file {
   margin-right: 10px;
 }
 
-#flash-message {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  z-index: 10;
+.delete-file {
+  float: right;
+  z-index: 99;
+  margin: 5px 5px 0 0;
+}
+
+.delete-file:hover {
+  background-color: #f00;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.fade-enter-active, .fade-leave-active {
+  -webkit-transition: opacity .5s;
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }

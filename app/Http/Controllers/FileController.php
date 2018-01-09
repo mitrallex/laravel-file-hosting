@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App;
+use App\File;
 
 class FileController extends Controller
 {
@@ -15,13 +16,13 @@ class FileController extends Controller
 
     public function fetchFile($type, $id = null)
     {
-        $model = new App\File();
+        $model = new File();
 
         if (!is_null($id)) {
             $files = $model::findOrFail($id);
         } else {
             $type_id = $this->getTypeId($type);
-            $files = $model::where('type_id', $type_id)->get();
+            $files = $model::where('type_id', $type_id)->orderBy('id', 'desc')->get();
         }
 
         return json_encode($files);
@@ -29,15 +30,19 @@ class FileController extends Controller
 
     public function addFile(Request $request)
     {
-        if ($request->isMethod('post')) {
-            $model = new App\File();
-            $model::create([
+        $model = new File();
+
+        return $model::create([
                 'name' => $request['name'],
                 'type_id' => 1,
                 'user_id' => Auth::id()
             ]);
-        }
-        return redirect('/');
+    }
+
+    public function deleteFile($id)
+    {
+        $file = File::findOrFail($id);
+        $file->delete();
     }
 
     private function getTypeId($type)

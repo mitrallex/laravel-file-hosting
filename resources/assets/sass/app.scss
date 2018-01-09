@@ -1,6 +1,8 @@
-// Bootstrap
+// Bulma
 @import "~bulma/bulma.sass";
 
+
+// Custom
 html, body {
     height: 100%;
 }
@@ -27,13 +29,37 @@ a {
     padding-bottom: 40px;
 }
 
+#message {
+    margin-bottom: 20px;
+}
+
+#message .delete {
+    margin: 5px 5px 0 0;
+}
+
 #new-file-form .file {
     margin-right: 10px;
 }
 
-#flash-message {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 10;
+.delete-file {
+    float: right;
+    z-index: 99;
+    margin: 5px 5px 0 0;
+}
+
+.delete-file:hover {
+    background-color: #f00;
+}
+
+// vue animation
+[v-cloak] {
+  display: none;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+  opacity: 0;
 }

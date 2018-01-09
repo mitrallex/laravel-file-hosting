@@ -2,15 +2,12 @@
     <div class="new-file">
         <form id="new-file-form" action="#" method="#" @submit.prevent="submitForm">
             <div class="field is-grouped">
-
-                {{ csrf_field() }}
-
                 <p class="control is-expanded">
                     <input class="input" type="text" name="name" placeholder="File name" v-model="fileName">
                 </p>
                 <div class="file is-info has-name">
                     <label class="file-label">
-                        <input class="file-input" type="file" ref="file" name="resume" @change="uploadFile()">
+                        <input class="file-input" type="file" ref="file" name="resume" @change="addFile()">
                         <span class="file-cta">
                             <span class="file-icon">
                                 <i class="fa fa-upload"></i>

@@ -22,9 +22,6 @@ if (token) {
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-// Vue.component('tabs', require('./components/Tabs'));
-// Vue.component('tab', require('./components/Tab'));
-
 const app = new Vue({
     el: '#app',
 
@@ -36,7 +33,8 @@ const app = new Vue({
         fileName: '',
         attachment: '',
 
-        notification: false
+        notification: false,
+        message: ''
     },
 
     methods: {
@@ -49,7 +47,7 @@ const app = new Vue({
         },
 
         fetchFile(type) {
-            axios.get('/practice/public/files/' + type + '/').then(result => {
+            axios.get('/public/files/' + type + '/').then(result => {
                 this.files = result.data;
             }).catch(error => {
                 console.log(error);
@@ -66,25 +64,46 @@ const app = new Vue({
             this.formData.append('name', this.fileName);
             this.formData.append('file', this.attachment);
 
-            axios.post('/practice/public/files/add',
-                    this.formData,
-                    {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
-            }).then(response => {
-                this.notification = true;
-            }).catch(error => {
-                console.log(error);
-            });
+            axios.post('/public/files/add', this.formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }}).then(response => {
+                    this.showNotification('File successfully upload!');
+                    this.resetForm();
+                    this.fetchFile(this.activeTab);
+                }).catch(error => {
+                    console.log(error);
+                });
         },
 
-        uploadFile() {
+        addFile() {
             this.attachment = this.$refs.file.files[0];
+        },
+
+        deleteFile(id) {
+            // console.log(window.axios.defaults.headers);
+            axios.post('/public/files/delete/' + id)
+                .then(response => {
+                    this.showNotification('File successfully deleted!');
+                    this.fetchFile(this.activeTab);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+
+        showNotification(text) {
+            var application = this;
+            application.message = text;
+            application.notification = true;
+            setTimeout(function() {
+                application.notification = false;
+            }, 30000);
         },
 
         resetForm() {
             this.formData = {};
+			this.fileName = '';
             this.attachment = '';
         }
     },
