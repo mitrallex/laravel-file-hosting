@@ -47,7 +47,7 @@ const app = new Vue({
         },
 
         fetchFile(type) {
-            axios.get('/public/files/' + type + '/').then(result => {
+            axios.get('files/' + type + '/').then(result => {
                 this.files = result.data;
             }).catch(error => {
                 console.log(error);
@@ -64,7 +64,7 @@ const app = new Vue({
             this.formData.append('name', this.fileName);
             this.formData.append('file', this.attachment);
 
-            axios.post('/public/files/add', this.formData, {
+            axios.post('files/add', this.formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }}).then(response => {
@@ -81,8 +81,7 @@ const app = new Vue({
         },
 
         deleteFile(id) {
-            // console.log(window.axios.defaults.headers);
-            axios.post('/public/files/delete/' + id)
+            axios.post('files/delete/' + id)
                 .then(response => {
                     this.showNotification('File successfully deleted!');
                     this.fetchFile(this.activeTab);
@@ -109,7 +108,7 @@ const app = new Vue({
     },
 
     mounted() {
-        this.fetchFile('image');
+        this.fetchFile(this.activeTab);
     }
 
 });
