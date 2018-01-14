@@ -4,15 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App;
 use App\File;
 
 class FileController extends Controller
 {
-    const IMAGE = 1;
-    const AUDIO = 2;
-    const VIDEO = 3;
-    const DOCUMENT = 4;
+    private $image_ext = ['jpg', 'jpeg', 'png', 'gif'];
+    private $audio_ext = ['mp3', 'ogg'];
+    private $video_ext = ['mp4', 'mpeg'];
+    private $document_ext = ['doc', 'docx', 'pdf', 'odt'];
 
     public function fetchFile($type, $id = null)
     {
@@ -21,8 +22,9 @@ class FileController extends Controller
         if (!is_null($id)) {
             $files = $model::findOrFail($id);
         } else {
-            $type_id = $this->getTypeId($type);
-            $files = $model::where('type_id', $type_id)->orderBy('id', 'desc')->get();
+            $files = $model::where('type', $type)
+                            ->where('user_id', Auth::id())
+                            ->orderBy('id', 'desc')->get();
         }
 
         return json_encode($files);
@@ -32,9 +34,18 @@ class FileController extends Controller
     {
         $model = new File();
 
+        $file = $request->file('file');
+        $ext = $file->getClientOriginalExtension();
+        $type = $this->getType($ext);
+
+        $user_dir = Auth::user()->name . '_' . Auth::id();
+
+        Storage::putFileAs('/public/' . $user_dir . '/' . $type . '/', $file, $request['name'] . '.' . $ext);
+
         return $model::create([
                 'name' => $request['name'],
-                'type_id' => 1,
+                'type' => $type,
+                'extension' => $ext,
                 'user_id' => Auth::id()
             ]);
     }
@@ -42,29 +53,29 @@ class FileController extends Controller
     public function deleteFile($id)
     {
         $file = File::findOrFail($id);
+        $user_dir = Auth::user()->name . '_' . Auth::id();
+        if (Storage::disk('local')->exists('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
+            Storage::disk('local')->delete('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension);
+        }
         $file->delete();
     }
 
-    private function getTypeId($type)
+    private function getType($ext)
     {
-        switch ($type) {
-            case 'image':
-                $type_id = self::IMAGE;
-                break;
-            case 'audio':
-                $type_id = self::AUDIO;
-                break;
-            case 'video':
-                $type_id = self::VIDEO;
-                break;
-            case 'document':
-                $type_id = self::DOCUMENT;
-                break;
-            default:
-                $type_id = self::IMAGE;
-                break;
+        if (in_array($ext, $this->image_ext)) {
+            return 'image';
         }
 
-        return $type_id;
+        if (in_array($ext, $this->audio_ext)) {
+            return 'audio';
+        }
+
+        if (in_array($ext, $this->video_ext)) {
+            return 'video';
+        }
+        
+        if (in_array($ext, $this->document_ext)) {
+            return 'document';
+        }
     }
 }

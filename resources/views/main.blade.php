@@ -42,17 +42,44 @@
 
         <div class="tabs-details">
             <div class="columns is-multiline is-mobile">
-                <div class="column is-one-quarter" v-for="file in files">
+                <div class="column is-one-fifth" v-for="file in files">
                     <div class="card">
                         <div class="card-image">
                             <button class="delete delete-file" title="Delete" @click="deleteFile(file.id)"></button>
-                            <figure class="image is-4by3">
-                                <img src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image">
+                            <figure class="image is-4by3" v-if="file.type == 'image'">
+                                <img  src=""  :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" alt="Image">
                             </figure>
+
+                            <div v-if="file.type == 'audio'">
+                                <figure class="image is-4by3">
+                                    <img src="{{ asset('images/music.png') }}" alt="Audio image" id="audio_image">
+                                </figure>
+                                <audio controls>
+                                    <source src="" :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" :type="'audio/' + file.extension">
+                                    Your browser does not support the audio tag.
+                                </audio>
+                            </div>
+
+                            <div v-if="file.type == 'video'" class="video_block">
+                                <video controls>
+                                    <source src="" :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" :type="'video/' + file.extension">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+
+                            <div v-if="file.type == 'document'" class="document_block">
+                                <figure class="image is-4by3">
+                                    <img src="{{ asset('images/document.png') }}" alt="Audio image" id="audio_image">
+                                </figure>
+                                <a class="button is-primary" href="" :href="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" target="_blank">
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                    &nbsp;Download
+                                </a>
+                            </div>
                       </div>
                       <div class="card-content">
                             <div class="content">
-                                @{{ file.name }}
+                                @{{ file.name + '.' + file.extension}}
                                 <br>
                                 <time datetime="2016-1-1">@{{ file.created_at }}</time>
                             </div>

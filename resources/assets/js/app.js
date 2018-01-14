@@ -81,14 +81,16 @@ const app = new Vue({
         },
 
         deleteFile(id) {
-            axios.post('files/delete/' + id)
-                .then(response => {
-                    this.showNotification('File successfully deleted!');
-                    this.fetchFile(this.activeTab);
-                })
-                .catch(error => {
-                    console.log(error);
-                });
+            if (confirm('Are you shure?')) {
+                axios.post('files/delete/' + id)
+                    .then(response => {
+                        this.showNotification('File successfully deleted!');
+                        this.fetchFile(this.activeTab);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }
         },
 
         showNotification(text) {

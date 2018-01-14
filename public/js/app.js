@@ -1020,7 +1020,7 @@ var app = new Vue({
         fetchFile: function fetchFile(type) {
             var _this = this;
 
-            axios.get('/public/files/' + type + '/').then(function (result) {
+            axios.get('files/' + type + '/').then(function (result) {
                 _this.files = result.data;
             }).catch(function (error) {
                 console.log(error);
@@ -1037,7 +1037,7 @@ var app = new Vue({
             this.formData.append('name', this.fileName);
             this.formData.append('file', this.attachment);
 
-            axios.post('/public/files/add', this.formData, {
+            axios.post('files/add', this.formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 } }).then(function (response) {
@@ -1054,13 +1054,14 @@ var app = new Vue({
         deleteFile: function deleteFile(id) {
             var _this3 = this;
 
-            // console.log(window.axios.defaults.headers);
-            axios.post('/public/files/delete/' + id).then(function (response) {
-                _this3.showNotification('File successfully deleted!');
-                _this3.fetchFile(_this3.activeTab);
-            }).catch(function (error) {
-                console.log(error);
-            });
+            if (confirm('Are you shure?')) {
+                axios.post('files/delete/' + id).then(function (response) {
+                    _this3.showNotification('File successfully deleted!');
+                    _this3.fetchFile(_this3.activeTab);
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            }
         },
         showNotification: function showNotification(text) {
             var application = this;
@@ -1078,7 +1079,7 @@ var app = new Vue({
     },
 
     mounted: function mounted() {
-        this.fetchFile('image');
+        this.fetchFile(this.activeTab);
     }
 });
 

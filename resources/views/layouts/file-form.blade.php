@@ -16,9 +16,7 @@
                                 Upload new file
                             </span>
                         </span>
-                        <span class="file-name">
-                            Screen Shot 2017-07-29 at 15.54.25.png
-                        </span>
+                        <span class="file-name" v-if="attachment.name" v-html="attachment.name"></span>
                     </label>
                 </div>
                 <p class="control">

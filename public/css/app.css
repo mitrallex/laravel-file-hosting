@@ -10709,6 +10709,19 @@ a {
   background-color: #f00;
 }
 
+.card audio {
+  width: 100%;
+}
+
+.video_block > video {
+  position: relative;
+  top: -25px;
+}
+
+.document_block {
+  text-align: center;
+}
+
 [v-cloak] {
   display: none;
 }
