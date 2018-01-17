@@ -64,6 +64,7 @@
         @if(Auth::check())
             @include('layouts.notification')
             @include('layouts.file-form')
+            @include('layouts.confirm')
         @endif
 
         @yield('content')

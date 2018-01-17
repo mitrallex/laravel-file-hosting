@@ -42,12 +42,12 @@
 
         <div class="tabs-details">
             <div class="columns is-multiline is-mobile">
-                <div class="column is-one-fifth" v-for="file in files">
+                <div class="column " :class="isVideo  ? 'is-half'  : 'is-one-fifth'" v-for="file in files">
                     <div class="card">
                         <div class="card-image">
-                            <button class="delete delete-file" title="Delete" @click="deleteFile(file.id)"></button>
+                            <button class="delete delete-file" title="Delete" @click="prepareToDelete(file)"></button>
                             <figure class="image is-4by3" v-if="file.type == 'image'">
-                                <img  src=""  :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" alt="Image">
+                                <img  src=""  :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" :alt="file.name">
                             </figure>
 
                             <div v-if="file.type == 'audio'">
@@ -79,8 +79,10 @@
                       </div>
                       <div class="card-content">
                             <div class="content">
-                                @{{ file.name + '.' + file.extension}}
-                                <br>
+                                <p v-if="file !== editingFile" @dblclick="editFile(file)" :title="'Double click for editing filename'">
+                                    @{{ file.name + '.' + file.extension}}
+                                </p>
+                                <input class="input" v-if="file === editingFile" v-autofocus @keyup.enter="endEditing(file)" @blur="endEditing(file)" type="text" :placeholder="file.name" v-model="file.name">
                                 <time datetime="2016-1-1">@{{ file.created_at }}</time>
                             </div>
                         </div>

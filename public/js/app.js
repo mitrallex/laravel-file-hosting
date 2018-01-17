@@ -998,15 +998,27 @@ if (token) {
 var app = new Vue({
     el: '#app',
 
+    directives: {
+        'autofocus': {
+            inserted: function inserted(el) {
+                el.focus();
+            }
+        }
+    },
+
     data: {
         files: {},
         activeTab: 'image',
+        isVideo: false,
 
         formData: {},
         fileName: '',
         attachment: '',
 
+        editingFile: {},
+
         notification: false,
+        showConfirm: false,
         message: ''
     },
 
@@ -1027,8 +1039,14 @@ var app = new Vue({
             });
         },
         getFiles: function getFiles(type) {
-            this.fetchFile(type);
             this.setActive(type);
+            this.fetchFile(type);
+
+            if (this.activeTab === 'video') {
+                this.isVideo = true;
+            } else {
+                this.isVideo = false;
+            }
         },
         submitForm: function submitForm() {
             var _this2 = this;
@@ -1051,13 +1069,51 @@ var app = new Vue({
         addFile: function addFile() {
             this.attachment = this.$refs.file.files[0];
         },
-        deleteFile: function deleteFile(id) {
+        prepareToDelete: function prepareToDelete(file) {
+            this.editingFile = file;
+            this.showConfirm = true;
+        },
+        cancelDeleting: function cancelDeleting() {
+            this.editingFile = {};
+            this.showConfirm = false;
+        },
+        deleteFile: function deleteFile() {
             var _this3 = this;
 
-            if (confirm('Are you shure?')) {
-                axios.post('files/delete/' + id).then(function (response) {
-                    _this3.showNotification('File successfully deleted!');
-                    _this3.fetchFile(_this3.activeTab);
+            axios.post('files/delete/' + this.editingFile.id).then(function (response) {
+                _this3.showNotification('File successfully deleted!');
+                _this3.fetchFile(_this3.activeTab);
+            }).catch(function (error) {
+                console.log(error);
+            });
+
+            this.cancelDeleting();
+        },
+        editFile: function editFile(file) {
+            this.editingFile = file;
+        },
+        endEditing: function endEditing(file) {
+            var _this4 = this;
+
+            this.editingFile = {};
+
+            if (file.name.trim() === '') {
+                alert('Filename cannot be empty!');
+                this.fetchFile(this.activeTab);
+            } else {
+                var formData = new FormData();
+                formData.append('name', file.name);
+                formData.append('type', file.type);
+                formData.append('extension', file.extension);
+
+                axios.post('files/edit/' + file.id, formData).then(function (response) {
+                    if (response.data === true) {
+                        _this4.showNotification('Filename successfully changed!');
+
+                        var src = document.querySelector('[alt="' + file.name + '"]').getAttribute("src");
+                        document.querySelector('[alt="' + file.name + '"]').setAttribute('src', src);
+                    }
+                    _this4.fetchFile(_this4.activeTab);
                 }).catch(function (error) {
                     console.log(error);
                 });
@@ -1069,7 +1125,7 @@ var app = new Vue({
             application.notification = true;
             setTimeout(function () {
                 application.notification = false;
-            }, 30000);
+            }, 15000);
         },
         resetForm: function resetForm() {
             this.formData = {};

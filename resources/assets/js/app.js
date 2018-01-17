@@ -25,15 +25,27 @@ if (token) {
 const app = new Vue({
     el: '#app',
 
+    directives: {
+            'autofocus': {
+                inserted(el) {
+                    el.focus();
+                }
+            }
+    },
+
     data: {
         files: {},
         activeTab: 'image',
+        isVideo: false,
 
         formData: {},
         fileName: '',
         attachment: '',
 
+        editingFile: {},
+
         notification: false,
+        showConfirm: false,
         message: ''
     },
 
@@ -55,8 +67,14 @@ const app = new Vue({
         },
 
         getFiles(type) {
-            this.fetchFile(type);
             this.setActive(type);
+            this.fetchFile(type);
+
+            if (this.activeTab === 'video') {
+                this.isVideo = true;
+            } else {
+                this.isVideo = false;
+            }
         },
 
         submitForm() {
@@ -80,11 +98,53 @@ const app = new Vue({
             this.attachment = this.$refs.file.files[0];
         },
 
-        deleteFile(id) {
-            if (confirm('Are you shure?')) {
-                axios.post('files/delete/' + id)
+        prepareToDelete(file) {
+            this.editingFile = file;
+            this.showConfirm = true;
+        },
+
+        cancelDeleting() {
+            this.editingFile = {};
+            this.showConfirm = false;
+        },
+
+        deleteFile() {
+            axios.post('files/delete/' + this.editingFile.id)
+                .then(response => {
+                    this.showNotification('File successfully deleted!');
+                    this.fetchFile(this.activeTab);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+            this.cancelDeleting();
+        },
+
+        editFile(file) {
+            this.editingFile = file;
+        },
+
+        endEditing(file) {
+            this.editingFile = {};
+
+            if (file.name.trim() === '') {
+                alert('Filename cannot be empty!');
+                this.fetchFile(this.activeTab);
+            } else {
+                var formData = new FormData();
+                formData.append('name', file.name);
+                formData.append('type', file.type);
+                formData.append('extension', file.extension);
+
+                axios.post('files/edit/' + file.id, formData)
                     .then(response => {
-                        this.showNotification('File successfully deleted!');
+                        if (response.data === true) {
+                            this.showNotification('Filename successfully changed!')
+                            
+                            var src = document.querySelector('[alt="' + file.name +'"]').getAttribute("src");
+                            document.querySelector('[alt="' + file.name +'"]').setAttribute('src', src);
+                        }
                         this.fetchFile(this.activeTab);
                     })
                     .catch(error => {
@@ -99,7 +159,7 @@ const app = new Vue({
             application.notification = true;
             setTimeout(function() {
                 application.notification = false;
-            }, 30000);
+            }, 15000);
         },
 
         resetForm() {
@@ -112,5 +172,4 @@ const app = new Vue({
     mounted() {
         this.fetchFile(this.activeTab);
     }
-
 });

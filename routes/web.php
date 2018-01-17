@@ -15,6 +15,7 @@ Route::get('/', 'MainController@index')->name('home')->middleware('auth');
 Route::get('/files/{type}/{id?}', 'FileController@fetchFile');
 
 Route::post('files/add', 'FileController@addFile')->name('file-add');
+Route::post('files/edit/{id}', 'FileController@editFile')->name('file-edit');
 Route::post('files/delete/{id}', 'FileController@deleteFile')->name('file-delete');
 
 Auth::routes();

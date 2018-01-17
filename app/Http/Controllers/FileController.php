@@ -40,6 +40,11 @@ class FileController extends Controller
 
         $user_dir = Auth::user()->name . '_' . Auth::id();
 
+        if (is_null($request['name']) || empty($request['name'])) {
+            $original_name_arr = explode('.', $file->getClientOriginalName());
+            $request['name'] = $original_name_arr[0];
+        }
+
         Storage::putFileAs('/public/' . $user_dir . '/' . $type . '/', $file, $request['name'] . '.' . $ext);
 
         return $model::create([
@@ -48,6 +53,26 @@ class FileController extends Controller
                 'extension' => $ext,
                 'user_id' => Auth::id()
             ]);
+    }
+
+    public function editFile($id, Request $request)
+    {
+        $file = File::where('id', $id)->where('user_id', Auth::id())->first();
+
+        if ($file->name == $request['name']) {
+            return json_encode(false);
+        }
+
+        $user_dir = Auth::user()->name . '_' . Auth::id();
+
+        if (Storage::disk('local')->exists('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
+            Storage::disk('local')->move('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension,
+                                        '/public/' . $user_dir . '/' . $request['type'] . '/' . $request['name'] . '.' . $request['extension']);
+        }
+
+        $file->name = $request['name'];
+
+        return json_encode($file->save());
     }
 
     public function deleteFile($id)
@@ -73,7 +98,7 @@ class FileController extends Controller
         if (in_array($ext, $this->video_ext)) {
             return 'video';
         }
-        
+
         if (in_array($ext, $this->document_ext)) {
             return 'document';
         }
