@@ -7,7 +7,7 @@
                 </p>
                 <div class="file is-info has-name">
                     <label class="file-label">
-                        <input class="file-input" type="file" ref="file" name="resume" @change="addFile()">
+                        <input class="file-input" type="file" ref="file" name="file" @change="addFile()">
                         <span class="file-cta">
                             <span class="file-icon">
                                 <i class="fa fa-upload"></i>

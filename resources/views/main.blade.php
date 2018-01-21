@@ -2,15 +2,6 @@
 
 @section('content')
     <div class="container is-fluid box">
-        @if (session('status'))
-            <article class="message is-success">
-                <div class="message-body">
-                    {{ session('status') }}
-                </div>
-            </article>
-        @endif
-
-
         <div class="tabs is-centered is-large">
             <ul>
                 <li :class="{'is-active': isActive('image')}" @click="getFiles('image')">
@@ -43,10 +34,10 @@
         <div class="tabs-details">
             <div class="columns is-multiline is-mobile">
                 <div class="column " :class="isVideo  ? 'is-half'  : 'is-one-fifth'" v-for="file in files">
-                    <div class="card">
+                    <div class="card " :class="isImage ? 'is-image' : ''">
                         <div class="card-image">
                             <button class="delete delete-file" title="Delete" @click="prepareToDelete(file)"></button>
-                            <figure class="image is-4by3" v-if="file.type == 'image'">
+                            <figure class="image is-4by3" v-if="file.type == 'image'" @click="showModal(file)">
                                 <img  src=""  :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" :alt="file.name">
                             </figure>
 

@@ -65,6 +65,7 @@
             @include('layouts.notification')
             @include('layouts.file-form')
             @include('layouts.confirm')
+            @include('layouts.modal')
         @endif
 
         @yield('content')

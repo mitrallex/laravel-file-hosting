@@ -11,11 +11,25 @@ use App\File;
 class FileController extends Controller
 {
     private $image_ext = ['jpg', 'jpeg', 'png', 'gif'];
-    private $audio_ext = ['mp3', 'ogg'];
+    private $audio_ext = ['mp3', 'ogg', 'mpga'];
     private $video_ext = ['mp4', 'mpeg'];
     private $document_ext = ['doc', 'docx', 'pdf', 'odt'];
 
-    public function fetchFile($type, $id = null)
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Fetch files by Type or Id
+     * @param  string $type  File type
+     * @param  integer $id   File Id
+     * @return object        Files list, JSON
+     */
+    public function index($type, $id = null)
     {
         $model = new File();
 
@@ -30,32 +44,46 @@ class FileController extends Controller
         return json_encode($files);
     }
 
-    public function addFile(Request $request)
+    /**
+     * Upload new file and store it
+     * @param  Request $request Request with form data: filename and file info
+     * @return boolean          True if success, otherwise - false
+     */
+    public function store(Request $request)
     {
+        $max_size = (int)ini_get('upload_max_filesize') * 1000;
+        $all_ext = implode(',', $this->allExtensions());
+
+        $this->validate($request, [
+            'name' => 'required|unique:files',
+            'file' => 'required|file|mimes:' . $all_ext . '|max:' . $max_size
+        ]);
+
         $model = new File();
 
         $file = $request->file('file');
         $ext = $file->getClientOriginalExtension();
         $type = $this->getType($ext);
 
-        $user_dir = Auth::user()->name . '_' . Auth::id();
-
-        if (is_null($request['name']) || empty($request['name'])) {
-            $original_name_arr = explode('.', $file->getClientOriginalName());
-            $request['name'] = $original_name_arr[0];
+        if (Storage::putFileAs('/public/' . $this->getUserDir() . '/' . $type . '/', $file, $request['name'] . '.' . $ext)) {
+            return $model::create([
+                    'name' => $request['name'],
+                    'type' => $type,
+                    'extension' => $ext,
+                    'user_id' => Auth::id()
+                ]);
         }
 
-        Storage::putFileAs('/public/' . $user_dir . '/' . $type . '/', $file, $request['name'] . '.' . $ext);
-
-        return $model::create([
-                'name' => $request['name'],
-                'type' => $type,
-                'extension' => $ext,
-                'user_id' => Auth::id()
-            ]);
+        return json_encode(false);
     }
 
-    public function editFile($id, Request $request)
+    /**
+     * Edit specific file
+     * @param  integer  $id      File Id
+     * @param  Request $request  Request with form data: filename
+     * @return boolean           True if success, otherwise - false
+     */
+    public function edit($id, Request $request)
     {
         $file = File::where('id', $id)->where('user_id', Auth::id())->first();
 
@@ -63,28 +91,48 @@ class FileController extends Controller
             return json_encode(false);
         }
 
-        $user_dir = Auth::user()->name . '_' . Auth::id();
+        $this->validate($request, [
+            'name' => 'unique:files'
+        ]);
 
-        if (Storage::disk('local')->exists('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
-            Storage::disk('local')->move('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension,
-                                        '/public/' . $user_dir . '/' . $request['type'] . '/' . $request['name'] . '.' . $request['extension']);
+        $old_filename = '/public/' . $this->getUserDir() . '/' . $file->type . '/' . $file->name . '.' . $file->extension;
+        $new_filename = '/public/' . $this->getUserDir() . '/' . $request['type'] . '/' . $request['name'] . '.' . $request['extension'];
+
+        if (Storage::disk('local')->exists($old_filename)) {
+            if (Storage::disk('local')->move($old_filename, $new_filename)) {
+                $file->name = $request['name'];
+                return json_encode($file->save());
+            }
         }
 
-        $file->name = $request['name'];
-
-        return json_encode($file->save());
+        return json_encode(false);
     }
 
-    public function deleteFile($id)
+
+    /**
+     * Delete file from disk and database
+     * @param  integer $id  File Id
+     * @return boolean      True if success, otherwise - false
+     */
+    public function destroy($id)
     {
         $file = File::findOrFail($id);
-        $user_dir = Auth::user()->name . '_' . Auth::id();
-        if (Storage::disk('local')->exists('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
-            Storage::disk('local')->delete('/public/' . $user_dir . '/' . $file->type . '/' . $file->name . '.' . $file->extension);
+
+        if (Storage::disk('local')->exists('/public/' . $this->getUserDir() . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
+            if (Storage::disk('local')->delete('/public/' . $this->getUserDir() . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
+                return json_encode($file->delete());
+            }
         }
-        $file->delete();
+
+        return json_encode(false);
     }
 
+
+    /**
+     * Get type by extension
+     * @param  string $ext Specific extension
+     * @return string      Type
+     */
     private function getType($ext)
     {
         if (in_array($ext, $this->image_ext)) {
@@ -102,5 +150,23 @@ class FileController extends Controller
         if (in_array($ext, $this->document_ext)) {
             return 'document';
         }
+    }
+
+    /**
+     * Get all extensions
+     * @return array Extensions of all file types
+     */
+    private function allExtensions()
+    {
+        return array_merge($this->image_ext, $this->audio_ext, $this->video_ext, $this->document_ext);
+    }
+
+    /**
+     * Get directory for the specific user
+     * @return string Specific user directory
+     */
+    private function getUserDir()
+    {
+        return Auth::user()->name . '_' . Auth::id();
     }
 }
