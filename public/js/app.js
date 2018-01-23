@@ -1009,9 +1009,12 @@ var app = new Vue({
     data: {
         files: {},
         file: {},
+
+        pagination: {},
+        offset: 4,
+
         activeTab: 'image',
         isVideo: false,
-        isImage: true,
 
         formData: {},
         fileName: '',
@@ -1034,11 +1037,15 @@ var app = new Vue({
         setActive: function setActive(tabItem) {
             this.activeTab = tabItem;
         },
-        fetchFile: function fetchFile(type) {
+        isCurrentPage: function isCurrentPage(page) {
+            return this.pagination.current_page === page;
+        },
+        fetchFile: function fetchFile(type, page) {
             var _this = this;
 
-            axios.get('files/' + type + '/').then(function (result) {
-                _this.files = result.data;
+            axios.get('files/' + type + '?page=' + page).then(function (result) {
+                _this.files = result.data.data.data;
+                _this.pagination = result.data.pagination;
             }).catch(function (error) {
                 console.log(error);
             });
@@ -1047,13 +1054,10 @@ var app = new Vue({
             this.setActive(type);
             this.fetchFile(type);
 
-            if (this.activeTab === 'image') {
-                this.isImage = true;
-            } else if (this.activeTab === 'video') {
+            if (this.activeTab === 'video') {
                 this.isVideo = true;
             } else {
                 this.isVideo = false;
-                this.isImage = false;
             }
         },
         submitForm: function submitForm() {
@@ -1089,11 +1093,11 @@ var app = new Vue({
 
             axios.post('files/delete/' + this.deletingFile.id).then(function (response) {
                 _this3.showNotification('File successfully deleted!', true);
-                _this3.fetchFile(_this3.activeTab);
+                _this3.fetchFile(_this3.activeTab, _this3.pagination.current_page);
             }).catch(function (error) {
                 _this3.errors = error.response.data.errors();
                 _this3.showNotification('Something went wrong! Please try again later.', false);
-                _this3.fetchFile(_this3.activeTab);
+                _this3.fetchFile(_this3.activeTab, _this3.pagination.current_page);
             });
 
             this.cancelDeleting();
@@ -1127,7 +1131,7 @@ var app = new Vue({
                     _this4.showNotification(error.response.data.message, false);
                 });
 
-                this.fetchFile(this.activeTab);
+                this.fetchFile(this.activeTab, this.pagination.current_page);
             }
         },
         showNotification: function showNotification(text, success) {
@@ -1150,6 +1154,10 @@ var app = new Vue({
             this.modalActive = false;
             this.file = {};
         },
+        changePage: function changePage(page) {
+            this.pagination.current_page = page;
+            this.fetchFile(this.activeTab, page);
+        },
         resetForm: function resetForm() {
             this.formData = {};
             this.fileName = '';
@@ -1164,7 +1172,36 @@ var app = new Vue({
     },
 
     mounted: function mounted() {
-        this.fetchFile(this.activeTab);
+        this.fetchFile(this.activeTab, this.pagination.current_page);
+    },
+
+
+    computed: {
+        pages: function pages() {
+            if (!this.pagination.to) {
+                return [];
+            }
+
+            var from = this.pagination.current_page - this.offset;
+
+            if (from < 1) {
+                from = 1;
+            }
+
+            var to = from + this.offset * 2;
+
+            if (to >= this.pagination.last_page) {
+                to = this.pagination.last_page;
+            }
+
+            var pages = [];
+            while (from <= to) {
+                pages.push(from);
+                from++;
+            }
+
+            return pages;
+        }
     }
 });
 

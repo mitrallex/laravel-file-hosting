@@ -34,7 +34,7 @@
         <div class="tabs-details">
             <div class="columns is-multiline is-mobile">
                 <div class="column " :class="isVideo  ? 'is-half'  : 'is-one-fifth'" v-for="file in files">
-                    <div class="card " :class="isImage ? 'is-image' : ''">
+                    <div class="card " :class="file.type == 'image' ? 'is-image' : ''">
                         <div class="card-image">
                             <button class="delete delete-file" title="Delete" @click="prepareToDelete(file)"></button>
                             <figure class="image is-4by3" v-if="file.type == 'image'" @click="showModal(file)">
@@ -81,5 +81,17 @@
                 </div>
             </div>
         </div>
+
+        <nav class="pagination is-centered" role="navigation" aria-label="pagination" v-if="pagination.last_page > 1">
+            <a class="pagination-previous" @click.prevent="changePage(pagination.current_page - 1)" :disabled="pagination.current_page <= 1">Previous</a>
+            <a class="pagination-next" @click.prevent="changePage(pagination.current_page + 1)" :disabled="pagination.current_page >= pagination.last_page">Next page</a>
+            <ul class="pagination-list">
+                <li v-for="page in pages">
+                    <a class="pagination-link" :class="isCurrentPage(page) ? 'is-current' : ''" @click.prevent="changePage(page)">
+                        @{{ page }}
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 @endsection

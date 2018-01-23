@@ -36,9 +36,12 @@ const app = new Vue({
     data: {
         files: {},
         file: {},
+
+        pagination: {},
+        offset: 4,
+
         activeTab: 'image',
         isVideo: false,
-        isImage: true,
 
         formData: {},
         fileName: '',
@@ -63,9 +66,14 @@ const app = new Vue({
             this.activeTab = tabItem;
         },
 
-        fetchFile(type) {
-            axios.get('files/' + type + '/').then(result => {
-                this.files = result.data;
+        isCurrentPage(page) {
+            return this.pagination.current_page === page;
+        },
+
+        fetchFile(type, page) {
+            axios.get('files/' + type + '?page=' + page).then(result => {
+                this.files = result.data.data.data;
+                this.pagination = result.data.pagination;
             }).catch(error => {
                 console.log(error);
             });
@@ -75,13 +83,10 @@ const app = new Vue({
             this.setActive(type);
             this.fetchFile(type);
 
-            if (this.activeTab === 'image') {
-                this.isImage = true;
-            } else if (this.activeTab === 'video') {
+            if (this.activeTab === 'video') {
                 this.isVideo = true;
             } else {
                 this.isVideo = false;
-                this.isImage = false;
             }
         },
 
@@ -121,12 +126,12 @@ const app = new Vue({
             axios.post('files/delete/' + this.deletingFile.id)
                 .then(response => {
                     this.showNotification('File successfully deleted!', true);
-                    this.fetchFile(this.activeTab);
+                    this.fetchFile(this.activeTab, this.pagination.current_page);
                 })
                 .catch(error => {
                     this.errors = error.response.data.errors();
                     this.showNotification('Something went wrong! Please try again later.', false);
-                    this.fetchFile(this.activeTab);
+                    this.fetchFile(this.activeTab, this.pagination.current_page);
                 });
 
             this.cancelDeleting();
@@ -162,7 +167,7 @@ const app = new Vue({
                         this.showNotification(error.response.data.message, false);
                     });
 
-                this.fetchFile(this.activeTab);
+                this.fetchFile(this.activeTab, this.pagination.current_page);
             }
         },
 
@@ -189,6 +194,11 @@ const app = new Vue({
             this.file = {};
         },
 
+        changePage(page) {
+            this.pagination.current_page = page;
+            this.fetchFile(this.activeTab, page);
+        },
+
         resetForm() {
             this.formData = {};
 			this.fileName = '';
@@ -205,6 +215,34 @@ const app = new Vue({
     },
 
     mounted() {
-        this.fetchFile(this.activeTab);
+        this.fetchFile(this.activeTab, this.pagination.current_page);
+    },
+
+    computed: {
+        pages() {
+            if (!this.pagination.to) {
+                return [];
+            }
+
+            let from = this.pagination.current_page - this.offset;
+
+            if (from < 1) {
+                from = 1;
+            }
+
+            let to = from + (this.offset * 2);
+
+            if (to >= this.pagination.last_page) {
+                to = this.pagination.last_page;
+            }
+
+            let pages = []
+            while (from <= to) {
+                pages.push(from);
+                from++;
+            }
+
+            return pages;
+        },
     }
 });

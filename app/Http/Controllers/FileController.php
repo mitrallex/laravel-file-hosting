@@ -34,14 +34,26 @@ class FileController extends Controller
         $model = new File();
 
         if (!is_null($id)) {
-            $files = $model::findOrFail($id);
+            $response = $model::findOrFail($id);
         } else {
             $files = $model::where('type', $type)
                             ->where('user_id', Auth::id())
-                            ->orderBy('id', 'desc')->get();
+                            ->orderBy('id', 'desc')->paginate(15);
+
+            $response = [
+                'pagination' => [
+                    'total' => $files->total(),
+                    'per_page' => $files->perPage(),
+                    'current_page' => $files->currentPage(),
+                    'last_page' => $files->lastPage(),
+                    'from' => $files->firstItem(),
+                    'to' => $files->lastItem()
+                ],
+                'data' => $files
+            ];
         }
 
-        return json_encode($files);
+        return response()->json($response);
     }
 
     /**
@@ -74,7 +86,7 @@ class FileController extends Controller
                 ]);
         }
 
-        return json_encode(false);
+        return response()->json(false);
     }
 
     /**
@@ -88,7 +100,7 @@ class FileController extends Controller
         $file = File::where('id', $id)->where('user_id', Auth::id())->first();
 
         if ($file->name == $request['name']) {
-            return json_encode(false);
+            return response()->json(false);
         }
 
         $this->validate($request, [
@@ -101,11 +113,11 @@ class FileController extends Controller
         if (Storage::disk('local')->exists($old_filename)) {
             if (Storage::disk('local')->move($old_filename, $new_filename)) {
                 $file->name = $request['name'];
-                return json_encode($file->save());
+                return response()->json($file->save());
             }
         }
 
-        return json_encode(false);
+        return response()->json(false);
     }
 
 
@@ -120,11 +132,11 @@ class FileController extends Controller
 
         if (Storage::disk('local')->exists('/public/' . $this->getUserDir() . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
             if (Storage::disk('local')->delete('/public/' . $this->getUserDir() . '/' . $file->type . '/' . $file->name . '.' . $file->extension)) {
-                return json_encode($file->delete());
+                return response()->json($file->delete());
             }
         }
 
-        return json_encode(false);
+        return response()->json(false);
     }
 
 

@@ -10778,6 +10778,10 @@ a {
   transform: scale(1.1);
 }
 
+.pagination {
+  margin-top: 30px;
+}
+
 [v-cloak] {
   display: none;
 }
