@@ -32,8 +32,25 @@
         </div>
 
         <div class="tabs-details">
-            <div class="columns is-multiline is-mobile">
-                <div class="column " :class="isVideo  ? 'is-half'  : 'is-one-fifth'" v-for="file in files">
+            <div class="columns is-multiline">
+
+                <div class="is-empty column is-4 is-offset-4" v-if="pagination.total == 0" v-cloak>
+                    <figure>
+                        <img src="{{ asset('images/folder_empty.png') }}" alt="Folder empty" id="folder_empty">
+                        <figcaption>
+                            <p class="title is-2">
+                                This folder is empty!
+                            </p>
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <div class="loading column is-4 is-offset-4" v-if="loading">
+                    <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+                </div>
+
+                <div class="column " :class="isVideo  ? 'is-half'  : 'is-one-fifth'" v-for="file in files" v-cloak>
                     <div class="card " :class="file.type == 'image' ? 'is-image' : ''">
                         <div class="card-image">
                             <button class="delete delete-file" title="Delete" @click="prepareToDelete(file)"></button>
@@ -82,7 +99,7 @@
             </div>
         </div>
 
-        <nav class="pagination is-centered" role="navigation" aria-label="pagination" v-if="pagination.last_page > 1">
+        <nav class="pagination is-centered" role="navigation" aria-label="pagination" v-if="pagination.last_page > 1" v-cloak>
             <a class="pagination-previous" @click.prevent="changePage(pagination.current_page - 1)" :disabled="pagination.current_page <= 1">Previous</a>
             <a class="pagination-next" @click.prevent="changePage(pagination.current_page + 1)" :disabled="pagination.current_page >= pagination.last_page">Next page</a>
             <ul class="pagination-list">

@@ -1015,6 +1015,7 @@ var app = new Vue({
 
         activeTab: 'image',
         isVideo: false,
+        loading: false,
 
         formData: {},
         fileName: '',
@@ -1043,11 +1044,14 @@ var app = new Vue({
         fetchFile: function fetchFile(type, page) {
             var _this = this;
 
+            this.loading = true;
             axios.get('files/' + type + '?page=' + page).then(function (result) {
+                _this.loading = false;
                 _this.files = result.data.data.data;
                 _this.pagination = result.data.pagination;
             }).catch(function (error) {
                 console.log(error);
+                _this.loading = false;
             });
         },
         getFiles: function getFiles(type) {

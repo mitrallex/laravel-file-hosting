@@ -42,6 +42,7 @@ const app = new Vue({
 
         activeTab: 'image',
         isVideo: false,
+        loading: false,
 
         formData: {},
         fileName: '',
@@ -71,12 +72,16 @@ const app = new Vue({
         },
 
         fetchFile(type, page) {
+            this.loading = true;
             axios.get('files/' + type + '?page=' + page).then(result => {
+                this.loading = false;
                 this.files = result.data.data.data;
                 this.pagination = result.data.pagination;
             }).catch(error => {
                 console.log(error);
+                this.loading = false;
             });
+
         },
 
         getFiles(type) {
@@ -95,7 +100,7 @@ const app = new Vue({
             this.formData.append('name', this.fileName);
             this.formData.append('file', this.attachment);
 
-            axios.post('files/add', this.formData, { headers: {'Content-Type': 'multipart/form-data'}})
+            axios.post('files/add', this.formData, {headers: {'Content-Type': 'multipart/form-data'}})
                 .then(response => {
                     this.resetForm();
                     this.showNotification('File successfully upload!', true);

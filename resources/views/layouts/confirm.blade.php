@@ -1,5 +1,5 @@
 <transition name="modal">
-    <div class="modal-mask" v-if="showConfirm">
+    <div class="modal-mask" v-if="showConfirm" v-cloak>
         <div class="modal-wrapper">
             <div class="modal-container">
 

@@ -36,9 +36,11 @@ class FileController extends Controller
         if (!is_null($id)) {
             $response = $model::findOrFail($id);
         } else {
+            $records_per_page = ($type == 'video') ? 6 : 15;
+
             $files = $model::where('type', $type)
                             ->where('user_id', Auth::id())
-                            ->orderBy('id', 'desc')->paginate(15);
+                            ->orderBy('id', 'desc')->paginate($records_per_page);
 
             $response = [
                 'pagination' => [
