@@ -1011,7 +1011,7 @@ var app = new Vue({
         file: {},
 
         pagination: {},
-        offset: 4,
+        offset: 2,
 
         activeTab: 'image',
         isVideo: false,
@@ -1186,22 +1186,13 @@ var app = new Vue({
                 return [];
             }
 
-            var from = this.pagination.current_page - this.offset;
-
-            if (from < 1) {
-                from = 1;
-            }
-
-            var to = from + this.offset * 2;
-
-            if (to >= this.pagination.last_page) {
-                to = this.pagination.last_page;
-            }
-
             var pages = [];
-            while (from <= to) {
-                pages.push(from);
-                from++;
+
+            for (var i = this.pagination.current_page - this.offset; i <= this.pagination.current_page + this.offset; i++) {
+                if (i < 1 || i > this.pagination.last_page) {
+                    continue;
+                }
+                pages.push(i);
             }
 
             return pages;

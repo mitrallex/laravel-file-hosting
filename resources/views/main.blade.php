@@ -101,6 +101,8 @@
 
         <nav class="pagination is-centered" role="navigation" aria-label="pagination" v-if="pagination.last_page > 1" v-cloak>
             <a class="pagination-previous" @click.prevent="changePage(pagination.current_page - 1)" :disabled="pagination.current_page <= 1">Previous</a>
+            <a class="pagination-previous" @click.prevent="changePage(1)">First page</a>
+            <a class="pagination-next" @click.prevent="changePage(pagination.last_page)">Last page</a>
             <a class="pagination-next" @click.prevent="changePage(pagination.current_page + 1)" :disabled="pagination.current_page >= pagination.last_page">Next page</a>
             <ul class="pagination-list">
                 <li v-for="page in pages">

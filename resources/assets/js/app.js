@@ -38,7 +38,7 @@ const app = new Vue({
         file: {},
 
         pagination: {},
-        offset: 4,
+        offset: 2,
 
         activeTab: 'image',
         isVideo: false,
@@ -206,7 +206,7 @@ const app = new Vue({
 
         resetForm() {
             this.formData = {};
-			this.fileName = '';
+            this.fileName = '';
             this.attachment = '';
         },
 
@@ -229,25 +229,16 @@ const app = new Vue({
                 return [];
             }
 
-            let from = this.pagination.current_page - this.offset;
+            let pages = [];
 
-            if (from < 1) {
-                from = 1;
-            }
-
-            let to = from + (this.offset * 2);
-
-            if (to >= this.pagination.last_page) {
-                to = this.pagination.last_page;
-            }
-
-            let pages = []
-            while (from <= to) {
-                pages.push(from);
-                from++;
+            for (let i = this.pagination.current_page - this.offset; i <= this.pagination.current_page + this.offset; i++) {
+                if (i < 1 || i > this.pagination.last_page) {
+                    continue;
+                }
+                pages.push(i);
             }
 
             return pages;
-        },
+        }
     }
 });
