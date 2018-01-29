@@ -38,7 +38,7 @@ const app = new Vue({
         file: {},
 
         pagination: {},
-        offset: 2,
+        offset: 5,
 
         activeTab: 'image',
         isVideo: false,
@@ -200,6 +200,9 @@ const app = new Vue({
         },
 
         changePage(page) {
+            if (page > this.pagination.last_page) {
+                page = this.pagination.last_page;
+            }
             this.pagination.current_page = page;
             this.fetchFile(this.activeTab, page);
         },
@@ -225,17 +228,23 @@ const app = new Vue({
 
     computed: {
         pages() {
-            if (!this.pagination.to) {
-                return [];
-            }
-
             let pages = [];
 
-            for (let i = this.pagination.current_page - this.offset; i <= this.pagination.current_page + this.offset; i++) {
-                if (i < 1 || i > this.pagination.last_page) {
-                    continue;
-                }
-                pages.push(i);
+            let from = this.pagination.current_page - Math.floor(this.offset / 2);
+
+            if (from < 1) {
+                from = 1;
+            }
+
+            let to = from + this.offset - 1;
+
+            if (to > this.pagination.last_page) {
+                to = this.pagination.last_page;
+            }
+
+            while (from <= to) {
+                pages.push(from);
+                from++;
             }
 
             return pages;
