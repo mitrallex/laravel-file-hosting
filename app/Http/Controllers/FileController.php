@@ -106,7 +106,7 @@ class FileController extends Controller
         }
 
         $this->validate($request, [
-            'name' => 'unique:files'
+            'name' => 'required|unique:files'
         ]);
 
         $old_filename = '/public/' . $this->getUserDir() . '/' . $file->type . '/' . $file->name . '.' . $file->extension;

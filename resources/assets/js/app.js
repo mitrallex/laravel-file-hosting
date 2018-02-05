@@ -149,31 +149,26 @@ const app = new Vue({
         endEditing(file) {
             this.editingFile = {};
 
-            if (file.name.trim() === '') {
-                alert('Filename cannot be empty!');
-                this.fetchFile(this.activeTab);
-            } else {
-                let formData = new FormData();
-                formData.append('name', file.name);
-                formData.append('type', file.type);
-                formData.append('extension', file.extension);
+            let formData = new FormData();
+            formData.append('name', file.name);
+            formData.append('type', file.type);
+            formData.append('extension', file.extension);
 
-                axios.post('files/edit/' + file.id, formData)
-                    .then(response => {
-                        if (response.data === true) {
-                            this.showNotification('Filename successfully changed!', true);
+            axios.post('files/edit/' + file.id, formData)
+                .then(response => {
+                    if (response.data === true) {
+                        this.showNotification('Filename successfully changed!', true);
 
-                            var src = document.querySelector('[alt="' + file.name +'"]').getAttribute("src");
-                            document.querySelector('[alt="' + file.name +'"]').setAttribute('src', src);
-                        }
-                    })
-                    .catch(error => {
-                        this.errors = error.response.data.errors;
-                        this.showNotification(error.response.data.message, false);
-                    });
+                        var src = document.querySelector('[alt="' + file.name +'"]').getAttribute("src");
+                        document.querySelector('[alt="' + file.name +'"]').setAttribute('src', src);
+                    }
+                })
+                .catch(error => {
+                    this.errors = error.response.data.errors;
+                    this.showNotification(error.response.data.message, false);
+                });
 
-                this.fetchFile(this.activeTab, this.pagination.current_page);
-            }
+            this.fetchFile(this.activeTab, this.pagination.current_page);
         },
 
         showNotification(text, success) {

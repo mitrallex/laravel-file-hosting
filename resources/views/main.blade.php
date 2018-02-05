@@ -84,8 +84,8 @@
                                     &nbsp;Download
                                 </a>
                             </div>
-                      </div>
-                      <div class="card-content">
+                        </div>
+                        <div class="card-content">
                             <div class="content">
                                 <p v-if="file !== editingFile" @dblclick="editFile(file)" :title="'Double click for editing filename'">
                                     @{{ file.name + '.' + file.extension}}
