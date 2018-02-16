@@ -19,6 +19,7 @@
     "vue": "^2.5.7"
   },
   "dependencies": {
+    "bulma": "^0.5.1",
     "font-awesome": "^4.7.0"
   }
 }
