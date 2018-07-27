@@ -16,10 +16,8 @@
     "jquery": "^3.2",
     "laravel-mix": "^1.0",
     "lodash": "^4.17.4",
-    "vue": "^2.5.7"
-  },
-  "dependencies": {
-    "bulma": "^0.5.1",
+    "vue": "^2.5.7",
+    "bulma": "^0.6.2",
     "font-awesome": "^4.7.0"
   }
 }
