@@ -49,13 +49,14 @@
                     <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
                     <span class="sr-only">Loading...</span>
                 </div>
-
-                <div class="column " :class="isVideo  ? 'is-half'  : 'is-one-fifth'" v-for="file in files" v-cloak>
+                <br>
+                <div class="column " :class="isVideo  ? 'is-half'  : 'is-one-fifth'" v-for="file in files" >
                     <div class="card " :class="file.type == 'image' ? 'is-image' : ''">
                         <div class="card-image">
                             <button class="delete delete-file" title="Delete" @click="prepareToDelete(file)"></button>
                             <figure class="image is-4by3" v-if="file.type == 'image'" @click="showModal(file)">
-                                <img  src=""  :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" :alt="file.name">
+                                <img v-if="file === editingFile" src=""  :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + savedFile.type + '/' + savedFile.name + '.' + savedFile.extension" :alt="file.name">
+                                <img v-if="file !== editingFile" src=""  :src="'{{ asset('storage/' . Auth::user()->name . '_' . Auth::id()) }}' + '/' + file.type + '/' + file.name + '.' + file.extension" :alt="file.name">
                             </figure>
 
                             <div v-if="file.type == 'audio'">

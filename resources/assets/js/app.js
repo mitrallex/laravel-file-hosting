@@ -50,6 +50,11 @@ const app = new Vue({
 
         editingFile: {},
         deletingFile: {},
+        savedFile: {
+            type: '',
+            name: '',
+            extension: ''
+        },
 
         notification: false,
         showConfirm: false,
@@ -76,6 +81,7 @@ const app = new Vue({
             axios.get('files/' + type + '?page=' + page).then(result => {
                 this.loading = false;
                 this.files = result.data.data.data;
+                console.log(this.files);
                 this.pagination = result.data.pagination;
             }).catch(error => {
                 console.log(error);
@@ -144,6 +150,9 @@ const app = new Vue({
 
         editFile(file) {
             this.editingFile = file;
+            this.savedFile.type = file.type;
+            this.savedFile.name = file.name;
+            this.savedFile.extension = file.extension;
         },
 
         endEditing(file) {
@@ -158,17 +167,18 @@ const app = new Vue({
                 .then(response => {
                     if (response.data === true) {
                         this.showNotification('Filename successfully changed!', true);
-
                         var src = document.querySelector('[alt="' + file.name +'"]').getAttribute("src");
                         document.querySelector('[alt="' + file.name +'"]').setAttribute('src', src);
                     }
+                    this.fetchFile(this.activeTab, this.pagination.current_page);
+
                 })
                 .catch(error => {
+                    console.log(error);
                     this.errors = error.response.data.errors;
                     this.showNotification(error.response.data.message, false);
+                    this.fetchFile(this.activeTab, this.pagination.current_page);
                 });
-
-            this.fetchFile(this.activeTab, this.pagination.current_page);
         },
 
         showNotification(text, success) {
