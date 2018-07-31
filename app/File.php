@@ -78,7 +78,7 @@ class File extends Model
      */
     public function getName($type, $name, $extension)
     {
-        return '/public/' . $this->getUserDir() . '/' . $type . '/' . $name . '.' . $extension;
+        return 'public/' . $this->getUserDir() . '/' . $type . '/' . $name . '.' . $extension;
     }
 
     /**
@@ -87,11 +87,11 @@ class File extends Model
      * @param  object $file      Uploaded file from request
      * @param  string $name      File name
      * @param  string $extension File extension
-     * @return boolean           True if file successfully uploaded, otherwise - false
+     * @return string|boolean    String if file successfully uploaded, otherwise - false
      */
     public function upload($type, $file, $name, $extension)
     {
-        $path = '/public/' . $this->getUserDir() . '/' . $type . '/';
+        $path = 'public/' . $this->getUserDir() . '/' . $type;
         $full_name = $name . '.' . $extension;
 
         return Storage::putFileAs($path, $file, $full_name);
