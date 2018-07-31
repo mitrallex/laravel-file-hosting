@@ -23,19 +23,4 @@ class UserTest extends TestCase
 
         $this->assertInstanceOf('Illuminate\Database\Eloquent\Relations\HasMany', $user->files());
     }
-
-    /**
-     * @test
-     */
-    // public function create_user_after_registration()
-    // {
-    //     $register_controller = new \App\Http\Controllers\Auth\RegisterController;
-    //     $data = [
-    //         'name' => 'Will',
-    //         'email' => 'will@gmail.com',
-    //         'password' => 'password'
-    //     ];
-    //     $user = $register_controller->create($data);
-    //     $this->assertInstanceOf('\App\User', $user);
-    // }
 }
